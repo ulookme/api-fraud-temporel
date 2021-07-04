@@ -59,4 +59,4 @@ jobs:
         with:
           app-name: 'killia-api-fraud'
           slot-name: 'production'
-          publish-profile: ${{ secrets.AzureAppService_PublishProfile_4afc1d1358e041d89cb8bcc2a6a79005 }}
+          publish-profile: ${{ secrets.AzureAppService_PublishProfile_3d3d998448b14e28aa95a73f058699c5 }}
