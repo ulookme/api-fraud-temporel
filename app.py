@@ -19,7 +19,7 @@ from tensorflow.keras import backend as K
 import sys, os
 from time import process_time_ns
 #from sklearn.preprocessing import MinMaxScaler
-#from sklearn.decomposition import PCA
+from sklearn.decomposition import PCA
 assert sys.version_info >= (3, 5)
 from flask import Flask, render_template, redirect, url_for
 from flask_bootstrap import Bootstrap
@@ -130,15 +130,20 @@ def next():
 
 ######################################################################
 
-#model = load_model('KILLA')
+model = load_model('KILLA')
 model2 = load_model('KILLA_ENCODE.h5')
 minmax = pickle.load(open('minmax.pickle', 'rb'))
 #scale_time = pickle.load(open('scale_time.pickle', 'rb'))
 print("minmax")
 print(minmax)
-#pca = pickle.load(open('pca.pickle', 'rb'))
-#print("import pca")
-#print(pca)
+pca = pickle.load(open('pca.pickle', 'rb'))
+print("import pca")
+print(pca)
+
+
+client = pymongo.MongoClient("mongodb+srv://transac:Mhajjar3@cluster0.hskyz.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+db = client.transaction
+col = db.collec1
 
 
 def preprocess_transaction(x):
@@ -277,9 +282,9 @@ def predict():
     and save input in database mogodb 
     '''
     # connected to database mogodb
-    client = pymongo.MongoClient("mongodb+srv://transac:Mhajjar3@cluster0.hskyz.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
-    db = client.transaction
-    col = db.collec1
+    #client = pymongo.MongoClient("mongodb+srv://transac:Mhajjar3@cluster0.hskyz.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+    #db = client.transaction
+    #col = db.collec1
     #request.form.values for predicted model
     int_features = request.form.values()
     #request.form.to_dict for transforme in daframe to save input
@@ -295,14 +300,14 @@ def predict():
     # insert data in collection mogodb
     col.insert_many(records)
     # standardize form.value to prédict
-    #df2 = standardize(df)
+    df2 = standardize(df)
     print("standiser pca")
-    #print(df2)
-    #final_features = [df2]
+    print(df2)
+    final_features = [df2]
     print('rendu finale')
-    #print(final_features)
+    print(final_features)
     #prédiction du model1
-    #prediction = model.predict(final_features)
+    prediction = model.predict(final_features)
     df3 = dataframe1(to_predict_list)
     df3 = standardize_encode(df3)
     print(df3)
@@ -310,7 +315,7 @@ def predict():
     print(final_features_encode)
     #prediction du model2
     prediction2 = model2.predict(final_features_encode )
-    #output = prediction[0]
+    output = prediction[0]
     output1 = prediction2[0]
     output2 =np.mean(np.abs(output1-final_features_encode))
     output2 = round(output2 , 2)
@@ -321,12 +326,13 @@ def predict():
         #return render_template('index2.html', prediction_text='Score is Fraude be % {}'.format(output2))
     #if output2 < seuile_encode :
         #return render_template('index2.html', prediction_text='Score no fraud % {}'.format(output2))
-    #if output2 > seuile_encode and output > seuile_classification:
-        #return render_template('index2.html', prediction_text='reel fraud % {}'.format(output2))
-    #if output2 < seuile_encode and output < seuile_classification:
-        #return render_template('index2.html', prediction_text='légitime % {}'.format(output2))
+    if output2 > seuile_encode and output > seuile_classification:
+        return render_template('index2.html', prediction_text='reel fraud % {}'.format(output2))
+    elif output2 < seuile_encode and output < seuile_classification:
+        return render_template('index2.html', prediction_text='légitime % {}'.format(output2))
+    else:
 
-    return render_template('index2.html', prediction_text='Score Fraude be % {}'.format(output2))
+        return render_template('index2.html', prediction_text='Score Fraude be % {}'.format(output2))
 
 @app.route('/predict_api',methods=['POST'])
 def predict_api():
