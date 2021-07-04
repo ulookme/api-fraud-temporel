@@ -1,0 +1,55 @@
+
+
+<!DOCTYPE html>
+<html >
+<!--From https://codepen.io/frytyler/pen/EGdtg-->
+<head>
+  <meta charset="UTF-8">
+  <title>KILLA</title>
+  <link href='https://fonts.googleapis.com/css?family=Pacifico' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Arimo' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Hind:300' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<style>
+  .button {
+  background-color: #e40b0b;
+  border: none;
+  color: rgb(228, 220, 220);
+  padding: 20px 34px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 20px;
+  margin: 4px 2px;
+  cursor: pointer;
+  }
+</style>
+</head>
+<body>
+ <div class="login">
+	<h1>FRAUD DETECT KILLIA</h1>
+
+     <!-- Main Input For Receiving Query to our ML -->
+    <form action="{{ url_for('predict')}}"method="post">
+    	<input type="text" name="client_id" placeholder="client_id" required="required" />
+        <input type="text" name="site_name" placeholder="site_name" required="required" />
+		<input type="text" name="card_type" placeholder="card_type_visa_ou_mastercard" required="required" />
+    <input type="text" name="reference" placeholder="reference" required="required" />
+        <input type="text" name="ip_country" placeholder="ip_country" required="required" />
+		<input type="text" name="amount" placeholder="amount" required="required" />
+        <button type="submit" class="btn btn-primary btn-block btn-large">Predict</button>
+            
+          <a href="{{ url_for('logout') }}" class="button">Log Out</a>
+          </form>
+    </form>
+
+   <br>
+   <br>
+   {{ prediction_text }}
+
+ </div>
+
+
+</body>
+</html>
