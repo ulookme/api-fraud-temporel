@@ -33,9 +33,26 @@
      <!-- Main Input For Receiving Query to our ML -->
     <form action="{{ url_for('predict')}}"method="post">
     	<input type="text" name="client_id" placeholder="client_id" required="required" />
-        <input type="text" name="site_name" placeholder="site_name" required="required" />
-		<input type="text" name="card_type" placeholder="card_type_visa_ou_mastercard" required="required" />
-    <input type="text" name="reference" placeholder="reference" required="required" />
+        <!--<input type="text" name="site_name" placeholder="site_name" required="required" />-->
+        <br>
+                <div class="element"></div>
+                <label for="Site name">Site name</label>
+                <select id="site_name" name="site_name" required="required">
+                <option value="0">casino1</option>
+                <option value="1">casino2</option>
+                <option value="2">casino3</option>
+                <option value="3">casino4</option>
+                <option value="4">Game_master</option>
+                </select>
+                <br>
+                <label for="card_type">Card type</label>
+                <select id="card_type" name="card_type">
+                <option value="0">Visa</option>
+                <option value="1">Master_card</option>
+                </select>
+
+		<!--<input type="text" name="card_type" placeholder="card_type_visa_ou_mastercard" required="required" />-->
+        <input type="text" name="reference" placeholder="reference" required="required" />
         <input type="text" name="ip_country" placeholder="ip_country" required="required" />
 		<input type="text" name="amount" placeholder="amount" required="required" />
         <button type="submit" class="btn btn-primary btn-block btn-large">Predict</button>
