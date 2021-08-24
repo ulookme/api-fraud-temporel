@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, flash
 import tensorflow as tf
 from tensorflow import keras
 import pickle
@@ -7,12 +7,12 @@ import pymongo
 from pymongo import MongoClient
 #from pandas.core.frame import DataFrame
 #import sklearn
-from keras.models import load_model
+from tensorflow.keras.models import load_model
 #assert sklearn.__version__ >= "0.20"
 import pandas as pd
 import numpy as np
 #from sklearn.preprocessing import MinMaxScaler
-import keras
+import tensorflow.keras
 import tensorflow as tf
 from tensorflow.keras.models import Model
 from tensorflow.keras import backend as K
@@ -108,9 +108,11 @@ def signup():
         new_user = User(username=form.username.data, email=form.email.data, password=hashed_password)
         db.session.add(new_user)
         db.session.commit()
-        return redirect(url_for('index'))#'<h1>New user has been created!</h1>'
+        flash("New user has been created!")
+        #return render_template('index.html', form=form)
+        return redirect(url_for('index'))
         #return '<h1>' + form.username.data + ' ' + form.email.data + ' ' + form.password.data + '</h1>'
-
+        flash('New user has been created!')
     return render_template('signup.html', form=form)
 
 @app.route('/dashboard1')
@@ -129,9 +131,12 @@ def next():
     return redirect(url_for('index'))
 
 ######################################################################
+def rounded_accuracy(y_true, y_pred):
+    return keras.metrics.binary_accuracy(tf.round(y_true), tf.round(y_pred))
 
 model = load_model('KILLA')
-model2 = load_model('KILLA_ENCODE.h5')
+model2 = load_model('KILLA_ENCODE')
+model3 = keras.models.load_model('KILLIA_W', custom_objects={'rounded_accuracy':rounded_accuracy})
 minmax = pickle.load(open('minmax.pickle', 'rb'))
 #scale_time = pickle.load(open('scale_time.pickle', 'rb'))
 print("minmax")
@@ -294,6 +299,7 @@ def predict():
     to_predict_list = ValuePredictor(to_predict_list)
     #print(to_predict_list)
     df = dataframe1(to_predict_list)
+    print('df observation de la somme')
     print(df)
     records = df.to_dict(orient='records') 
     print(records)
@@ -304,8 +310,9 @@ def predict():
     print("standiser pca")
     print(df2)
     final_features = [df2]
-    print('rendu finale')
+    print('rendu finale prediction donné a prédire pour model1 ')
     print(final_features)
+    ###########################################
     #prédiction du model1
     prediction = model.predict(final_features)
     df3 = dataframe1(to_predict_list)
@@ -313,23 +320,36 @@ def predict():
     print(df3)
     final_features_encode = [df3]
     print(final_features_encode)
+    #########################################
     #prediction du model2
     prediction2 = model2.predict(final_features_encode )
+    prediction3 = model3.predict(final_features_encode )
     output = prediction[0]
+    print(output)
     output1 = prediction2[0]
     output2 =np.mean(np.abs(output1-final_features_encode))
     output2 = round(output2 , 2)
-    seuile_encode = 0.4
-    seuile_classification = 0.7
-    #output3 = "comportement"
-    #if output2 > seuile_encode:
-        #return render_template('index2.html', prediction_text='Score is Fraude be % {}'.format(output2))
-    #if output2 < seuile_encode :
-        #return render_template('index2.html', prediction_text='Score no fraud % {}'.format(output2))
-    if output2 > seuile_encode and output > seuile_classification:
-        return render_template('index2.html', prediction_text='reel fraud % {}'.format(output2))
-    elif output2 < seuile_encode and output < seuile_classification:
+    print(output2)
+    ###########################################
+    #prediction model wavenet
+    output3 = prediction2[0]
+    outputw =np.mean(np.abs(output3-final_features_encode))
+    output3 = round(outputw , 2)
+    print(output3)
+    ###########################################
+    seuil_encoder_decoder = 0.4
+    seuil_classification = 0.8
+    seuil_wave = 0.38
+    if output2 >1 or output3 > 1 :
+        output2 = 0.99 
+        output3 = 0.99
+# exemple Stratégie de detection definir l'action des trois models.
+    if output2 > seuil_encoder_decoder and output > seuil_classification or output2 > seuil_encoder_decoder and output3 > seuil_wave :
+        return render_template('index2.html', prediction_text='real fraud % {}'.format(output2))
+    elif output2 < seuil_encoder_decoder and output < seuil_classification or output2 < seuil_encoder_decoder and output3 < seuil_wave :
         return render_template('index2.html', prediction_text='légitime % {}'.format(output2))
+    elif output2 < seuil_encoder_decoder and output3 < seuil_wave and output > seuil_classification  and df[df['amount'] == 5]  :
+        return render_template('index2.html', prediction_text='fraud except % {}'.format(output2))
     else:
 
         return render_template('index2.html', prediction_text='Score Fraude be % {}'.format(output2))
@@ -347,4 +367,4 @@ def predict_api():
 
 if __name__ == '__main__':
     #app.run(host='0.0.0.0',port=5000)
-    app.run(debug=False)
+    app.run(debug=True)

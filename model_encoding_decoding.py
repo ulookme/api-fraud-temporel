@@ -27,22 +27,22 @@ from tensorflow.keras.layers import Bidirectional
 import tensorflow as tf
 from tensorflow.keras.layers import Input, Dropout, Dense, LSTM, TimeDistributed, RepeatVector
 from tensorflow.keras.layers import TimeDistributed
-from keras.models import Model
-from keras import regularizers
-from keras.layers  import  LSTM
-from keras.optimizers import Adam
-from keras import regularizers
-from keras.models import Sequential
-from keras.layers import Dense
+from tensorflow.keras.models import Model
+from tensorflow.keras import regularizers
+from tensorflow.keras.layers  import  LSTM
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras import regularizers
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import Dense, LSTM, Dropout, RepeatVector
 from keras.models import Model
 import tensorflow as tf
 
 
 
-from keras.layers import Input, Dropout, Dense, LSTM, TimeDistributed, RepeatVector
-from keras.models import Model
-from keras import regularizers
+from tensorflow.keras.layers import Input, Dropout, Dense, LSTM, TimeDistributed, RepeatVector
+from tensorflow.keras.models import Model
+from tensorflow.keras import regularizers
 # Multiple Inputs
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, LSTM, Dropout, RepeatVector, TimeDistributed
@@ -66,13 +66,13 @@ import math, sys, time
 # Use scikit-learn to grid search the batch size and epochs
 import numpy
 from sklearn.model_selection import GridSearchCV
-from keras.models import Sequential
-from keras.layers import Dense
-from keras.wrappers.scikit_learn import KerasClassifier
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 from tensorflow.keras.models import load_model
 from tensorflow.keras.layers import GRU, TimeDistributed, LSTM
-from keras.callbacks import ModelCheckpoint
-from keras.layers import Dense, Flatten, Dropout, Input
+from tensorflow.keras.callbacks import ModelCheckpoint
+from tensorflow.keras.layers import Dense, Flatten, Dropout, Input
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.decomposition import PCA
 
@@ -90,9 +90,10 @@ assert sklearn.__version__ >= "0.20"
 def load_data(nrows):
     client = pymongo.MongoClient("mongodb+srv://transac:Mhajjar3@cluster0.hskyz.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
     db = client.transaction
-    col = db.collec1
+    col = db.collec_init
     data = pd.DataFrame(list(col.find()))
-    data = data.drop(columns=["_id"])
+    data = data.drop(columns=["_id","id","oneclick","weight","card_bank","card_country","card_operation_type"])
+    print(data)
     #data =  shuffle(data, random_state=42)
     #data = data.iloc[0:40000]
     # Convert integer valued (numeric) columns to floating point
@@ -100,7 +101,6 @@ def load_data(nrows):
     data[numeric_columns] = data[numeric_columns].astype("float32")
     #data = pd.read_csv('transaction_simplon.csv', nrows=nrows)
     return data
-
 
 
 
@@ -246,15 +246,16 @@ def create_model(X, y):
 
 #dataFrame 
 #recupération via mongodb
-df = load_data(100000)
+df = load_data(279661)
 df = df.dropna()
+
 #df.index = df.reference
 #recupération via fichier csv 
 #df = pd.read_csv('transaction_simplon.csv', error_bad_lines=False)
 print(df)
 
 df1 = preprocess(df)
-train_size = int(len(df) * 0.90)
+train_size = int(len(df) * 0.94999660303)
 test_size = len(df) - train_size
 train, test = df.iloc[0:train_size], df.iloc[train_size:len(df)]
 print(train.shape, test.shape)
@@ -268,7 +269,7 @@ X_test1 = test.drop(columns=['fraud'])
     
 scale_time = MinMaxScaler().fit(X_train1,y_train)
 
-save_path = os.path.join('/home/hajjar/Documents/FRAUD/PROJET_KILLA/', 'scale_time.pickle')
+save_path = os.path.join('/Users/charleshajjar/Downloads/api-fraud-temporel-main', 'scale_time.pickle')
 print('Pickle save path', save_path)
 with open(save_path, "wb") as f:
     pickle.dump(scale_time, f)
@@ -293,6 +294,11 @@ print(f"X Training shape: {X_train.shape}")
 print(f"y Training shape: {y_train.shape}")
 print(f"X Testing shape: {X_test.shape}")
 print(f"y Testing shape: {y_test.shape}")
+
+X_train = X_train.astype(np.float32)
+y_train = y_train.astype(np.float32)
+X_test = X_test.astype(np.float32)
+y_test = y_test.astype(np.float32)
 print(y_test)
 
 

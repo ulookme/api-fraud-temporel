@@ -13,7 +13,18 @@ Sign Up
 
 {% block content %}
 <div class="container">
-
+    {% with messages = get_flashed_messages() %}
+      {% if messages  %}
+   
+      {% for message in messages %}
+      <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <span>{{ message}}</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+</div>
+ {% endif %}
+ {% endwith %}
   <form class="form-signin" method="POST" action="/signup">
     <h2 class="form-signin-heading">Sign Up</h2>
     {{ form.hidden_tag() }}

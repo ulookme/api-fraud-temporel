@@ -33,11 +33,24 @@ Demo App
     </nav>
 
     <div class="container">
+      {% with messages = get_flashed_messages() %}
+       {% if messages  %}
+        
+        {% for message in messages %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+          <span>{{ message}}</span>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+
+      {% endif %}
+      {% endwith %}
+    </div>  
       <div class="starter-template">
         <h1>KILLIA</h1>
         <p class="lead"> KILLIA is an artificial intelligence formed from neural networks capable of detecting fraudulent behavior, it learns on its own from the information transmitted<br></p>
           
-          <img src="https://i.goopics.net/OlPpK.gif" />
+          <img src="https://i.goopics.net/YdXrZ.gif" />
       </div>
 
     </div><!-- /.container -->
